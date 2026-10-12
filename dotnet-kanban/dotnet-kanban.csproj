@@ -7,4 +7,10 @@
     <RootNamespace>dotnet_kanban</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Update="Data\*.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
