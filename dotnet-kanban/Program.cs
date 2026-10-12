@@ -1,21 +1,28 @@
 using Microsoft.EntityFrameworkCore;
 using dotnet_kanban.Data;
 using System.ComponentModel.DataAnnotations;
+using dotnet_kanban.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
 
-builder.Services.AddDbContext<AppDBContext> (
+// DB services
+builder.Services.AddDbContextFactory<AppDBContext> (
     options => options.UseSqlite("Data Source=kanban.db"));
 
+builder.Services.AddScoped<BoardService>();
+builder.Services.AddScoped<GroupService>();
+builder.Services.AddScoped<TaskService>();
+builder.Services.AddScoped<TagService>();
 
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<AppDBContext>();
+    var factory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<AppDBContext>>();
+    using var db = factory.CreateDbContext();
     db.Database.Migrate();
 }
 
