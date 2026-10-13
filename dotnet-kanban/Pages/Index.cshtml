@@ -3,7 +3,39 @@
 @{
     ViewData["Title"] = "Home page";
 }
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
-<div class="text-center">
-    <h1 class="display-4">@Model.Board?.Name</h1>
-</div>
+<h1>Test Boards</h1>
+
+<form method="post" asp-page-handler="Create">
+    <input asp-for="BoardName" />
+    <button type="submit">Create board</button>
+</form>
+
+@if (!string.IsNullOrEmpty(Model.Message))
+{
+    <p>@Model.Message</p>
+}
+
+<hr />
+
+<form method="post" asp-page-handler="Print">
+    <button type="submit">Print boards</button>
+</form>
+
+@if (Model.Boards is not null)
+{
+    @if (Model.Boards.Count == 0)
+    {
+        <p>No boards found.</p>
+    }
+    else
+    {
+        <ul>
+            @foreach (var board in Model.Boards)
+            {
+                <li>@board.Id - @board.Name</li>
+            }
+        </ul>
+    }
+}
