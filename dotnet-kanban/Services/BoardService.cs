@@ -28,27 +28,25 @@ public class BoardService
             .OrderBy(t => t.Position)).ThenInclude(t => t.Tags).FirstOrDefaultAsync(b => b.Id == id);
     }
 
-    // Creates new board using string name
-    public async Task<Board> CreateBoardAsync(string name)
+    // Add new board
+    public async Task AddBoardAsync(Board board)
     {
         await using var db = await _factory.CreateDbContextAsync();
 
-        var board = new Board { Name = name };
         db.Boards.Add(board);
         await db.SaveChangesAsync();
-        return board;
     }
 
     // Rename board
-    public async Task RenameBoardAsync(Guid id, string name)
+    public async Task UpdateBoardAsync(Board board)
     {
         await using var db = await _factory.CreateDbContextAsync();
         
-        var board = await db.Boards.FindAsync(id);
+        var existing = await db.Boards.FindAsync(board.Id);
         
-        if (board != null)
+        if (existing != null)
         {
-            board.Name = name;
+            existing.Name = board.Name;
             await db.SaveChangesAsync();
         } else throw new KeyNotFoundException("Could not find board.");
     }
