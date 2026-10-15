@@ -1,0 +1,17 @@
+{
+  "name": "dotnet-kanban",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "css:watch": "tailwindcss -i Styles/app.css -o wwwroot/css/tailwind.css --watch",
+    "css:build": "tailwindcss -i Styles/app.css -o wwwroot/css/tailwind.css --minify"
+  },
+  "keywords": [],
+  "type": "commonjs",
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.3.3",
+    "tailwindcss": "^4.3.3"
+  }
+}
