@@ -58,3 +58,6 @@ nunit-*.xml
 
 # DB
 kanban.db*
+
+# npm
+node_modules/
