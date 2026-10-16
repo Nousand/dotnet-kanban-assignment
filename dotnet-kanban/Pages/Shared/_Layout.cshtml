@@ -6,6 +6,8 @@
     <title>@ViewData["Title"] - dotnet_kanban</title>
     <link rel="stylesheet" href="~/css/tailwind.css" asp-append-version="true" />
     <link rel="icon" href="~/favicon.ico" />
+    @* No defer: keeps htmx defined before the bottom-of-body scripts (site.js) run. *@
+    <script src="~/js/htmx.min.js"></script>
 </head>
 <body class="flex min-h-screen flex-col bg-gray-100 text-gray-900">
     <header class="border-b border-gray-200 bg-white">
