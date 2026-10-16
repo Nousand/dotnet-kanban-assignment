@@ -1,0 +1,27 @@
+@model Board
+
+<div class="board-card flex flex-col gap-3 rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+    <a asp-page="/Board" asp-route-id="@Model.Id" class="text-lg font-semibold text-blue-700 hover:underline">
+        @Model.Name
+    </a>
+
+    <div class="mt-auto flex items-center gap-2">
+        <form method="post" asp-page-handler="Rename"
+              hx-post="?handler=Rename" hx-target="closest .board-card" hx-swap="outerHTML"
+              class="flex flex-1 gap-2">
+            <input type="hidden" name="id" value="@Model.Id" />
+            <input name="name" value="@Model.Name" aria-label="Board name" required
+                   class="w-full rounded border border-gray-300 px-2 py-1 text-sm" />
+            <button type="submit"
+                    class="rounded border border-gray-300 px-2 py-1 text-sm hover:bg-gray-50">Rename</button>
+        </form>
+
+        <form method="post" asp-page-handler="Delete"
+              hx-post="?handler=Delete" hx-target="closest .board-card" hx-swap="delete"
+              hx-confirm="Delete &quot;@Model.Name&quot; and all of its groups and tasks?">
+            <input type="hidden" name="id" value="@Model.Id" />
+            <button type="submit"
+                    class="rounded border border-red-300 px-2 py-1 text-sm text-red-600 hover:bg-red-50">Delete</button>
+        </form>
+    </div>
+</div>

@@ -19,7 +19,7 @@ public class BoardService
     }
 
     // Gets full board with groups tasks and tags
-    public async Task<Board?> GetBoardsAsync(Guid id)
+    public async Task<Board?> GetBoardByIdAsync(Guid id)
     {
         await using var db = await _factory.CreateDbContextAsync();
 

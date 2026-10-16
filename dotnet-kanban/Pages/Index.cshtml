@@ -1,41 +1,28 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
-}
-@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
-
-<h1>Test Boards</h1>
-
-<form method="post" asp-page-handler="Create">
-    <input asp-for="BoardName" />
-    <button type="submit">Create board</button>
-</form>
-
-@if (!string.IsNullOrEmpty(Model.Message))
-{
-    <p>@Model.Message</p>
+    ViewData["Title"] = "Boards";
 }
 
-<hr />
+<div class="mb-6 flex items-center justify-between gap-4">
+    <h1 class="text-2xl font-bold">Boards</h1>
 
-<form method="post" asp-page-handler="Print">
-    <button type="submit">Print boards</button>
-</form>
+    <form method="post" asp-page-handler="Create"
+          hx-post="?handler=Create" hx-target="#board-list" hx-swap="beforeend"
+          hx-on::after-request="if(event.detail.successful) this.reset()"
+          class="flex gap-2">
+        <input name="name" placeholder="New board name" aria-label="New board name" required
+               class="rounded border border-gray-300 px-3 py-2 text-sm" />
+        <button type="submit"
+                class="rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
+            Create board
+        </button>
+    </form>
+</div>
 
-@if (Model.Boards is not null)
-{
-    @if (Model.Boards.Count == 0)
+<div id="board-list" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    @foreach (var board in Model.Boards)
     {
-        <p>No boards found.</p>
+        <partial name="_BoardCard" model="board" />
     }
-    else
-    {
-        <ul>
-            @foreach (var board in Model.Boards)
-            {
-                <li>@board.Id - @board.Name</li>
-            }
-        </ul>
-    }
-}
+</div>

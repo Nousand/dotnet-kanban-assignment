@@ -11,33 +11,36 @@ public class IndexModel : PageModel
 
     public IndexModel(BoardService boards) => _boards = boards;
 
-    [BindProperty]
-    public string BoardName { get; set; } = "";
+    public List<Board> Boards { get; set; } = new();
 
-    // Survives the redirect after a create so the message shows once.
-    [TempData]
-    public string? Message { get; set; }
+    public async Task OnGetAsync() => Boards = await _boards.GetBoardsAsync();
 
-    // Only filled when the Print button is pressed.
-    public List<Board>? Boards { get; set; }
-
-    public async Task<IActionResult> OnPostCreateAsync()
+    public async Task<IActionResult> OnPostCreateAsync(string? name)
     {
-        if (string.IsNullOrWhiteSpace(BoardName))
-        {
-            Message = "Enter a board name first.";
-            return RedirectToPage();
-        }
+        var boardName = (name ?? "").Trim();
+        if (boardName.Length == 0) return BadRequest();
 
-
-        var board = new Board { Name = BoardName.Trim() };
+        var board = new Board { Name = boardName };
         await _boards.AddBoardAsync(board);
-        Message = $"Created board: {board.Name} ({board.Id})";
-        return RedirectToPage();
+
+        return Partial("_BoardCard", board);
     }
 
-    public async Task OnPostPrintAsync()
+    public async Task<IActionResult> OnPostRenameAsync(Guid id, string? name)
     {
-        Boards = await _boards.GetBoardsAsync();
+        var boardName = (name ?? "").Trim();
+        if (boardName.Length == 0) return BadRequest();
+
+        var board = new Board { Id = id, Name = boardName };
+        await _boards.UpdateBoardAsync(board);
+
+        return Partial("_BoardCard", board);
+    }
+
+    public async Task<IActionResult> OnPostDeleteAsync(Guid id)
+    {
+        await _boards.DeleteBoardAsync(id);
+
+        return new EmptyResult();
     }
 }
