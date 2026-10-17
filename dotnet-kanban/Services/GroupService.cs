@@ -15,6 +15,7 @@ public class GroupService
         await using var db = await _factory.CreateDbContextAsync();
 
         if (!await db.Boards.AnyAsync(b => b.Id == group.BoardId)) throw new KeyNotFoundException("Could not find Board.");
+        group.Position = await db.Groups.CountAsync(g => g.BoardId == group.BoardId);
 
         db.Groups.Add(group);
         await db.SaveChangesAsync();
@@ -44,7 +45,25 @@ public class GroupService
         var group = await db.Groups.FindAsync(id);
         if (group == null) throw new KeyNotFoundException("Could not find group.");
 
+        var later = await db.Groups.Where(g => g.BoardId == group.BoardId && g.Position > group.Position).ToListAsync();
+
+        foreach (var g in later)
+        {
+            g.Position--;
+        }
+
         db.Groups.Remove(group);
         await db.SaveChangesAsync();
+    }
+
+
+    //Load one group by id
+    public async Task<Group?> GetGroupAsync(Guid id)
+    {
+        await using var db = await _factory.CreateDbContextAsync();
+
+        return await db.Groups
+            .Include(g => g.Tasks.OrderBy(t => t.Position)).ThenInclude(t => t.Tags)
+            .FirstOrDefaultAsync(g => g.Id == id);
     }
 }

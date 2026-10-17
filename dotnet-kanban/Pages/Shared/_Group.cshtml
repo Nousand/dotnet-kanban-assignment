@@ -1,0 +1,63 @@
+@model Group
+
+<section class="group-card flex w-60 shrink-0 flex-col gap-2">
+    <header class="flex h-10 items-center gap-2 rounded-md bg-card px-3"
+            style="border-left: 4px solid @Model.Colour">
+        <h2 class="flex-1 truncate font-semibold">@Model.Name</h2>
+        <span class="rounded bg-white/10 px-2 text-sm text-muted">@Model.TaskCount</span>
+
+        <details class="relative">
+            <summary class="cursor-pointer list-none rounded px-1 text-muted hover:bg-white/10">•••</summary>
+            <div class="absolute right-0 z-10 mt-1 w-56 rounded-md bg-card p-3 shadow-lg ring-1 ring-white/10">
+                <form method="post" asp-page-handler="EditGroup"
+                      hx-post="?handler=EditGroup" hx-target="closest .group-card" hx-swap="outerHTML"
+                      class="flex gap-2">
+                    <input type="hidden" name="groupId" value="@Model.Id" />
+                    <input name="name" value="@Model.Name" required maxlength="100" aria-label="Group name"
+                           class="w-full rounded bg-surface px-2 py-1 text-sm text-zinc-100" />
+                    <input type="color" name="colour" value="@Model.Colour" aria-label="Group colour"
+                           class="h-8 w-8 rounded" />
+                    <button type="submit"
+                            class="rounded bg-white/10 px-2 py-1 text-sm text-zinc-100 hover:bg-white/20">Save</button>
+                </form>
+
+                <form method="post" asp-page-handler="DeleteGroup"
+                      hx-post="?handler=DeleteGroup" hx-target="closest .group-card" hx-swap="delete"
+                      hx-confirm="Delete &quot;@Model.Name&quot; and all of its tasks?"
+                      class="mt-2">
+                    <input type="hidden" name="groupId" value="@Model.Id" />
+                    <button type="submit"
+                            class="w-full rounded px-2 py-1 text-left text-sm text-red-400 hover:bg-white/10">
+                        Delete group
+                    </button>
+                </form>
+            </div>
+        </details>
+    </header>
+
+    @foreach (var task in Model.Tasks)
+    {
+        <article class="rounded-md bg-card p-2 text-sm text-zinc-200">
+            @if (task.Tags.Count > 0)
+            {
+                <div class="mb-1 flex flex-wrap gap-1">
+                    @foreach (var tag in task.Tags)
+                    {
+                        <span class="rounded-full px-1.5 text-[10px] font-bold uppercase text-white"
+                              style="background-color: @tag.Colour">@tag.Title</span>
+                    }
+                </div>
+            }
+
+            <p class="break-words">@task.Title</p>
+
+            @if (task.DueDate is not null)
+            {
+                <div class="mt-1 text-[11px] text-muted">@task.DueDate.Value.ToString("HH:mm MMM d")</div>
+            }
+        </article>
+    }
+
+    @* Placeholder: gets wired up when we build the tasks feature *@
+    <button type="button" class="rounded-md bg-card py-1 text-muted hover:bg-white/10">+</button>
+</section>

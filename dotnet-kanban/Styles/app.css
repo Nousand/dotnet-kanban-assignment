@@ -1,1 +1,14 @@
 @import "tailwindcss";
+
+@theme {
+    --color-surface: #18181b; /* page background */
+    --color-card: #27272a; /* group headers, task cards, inputs */
+    --color-muted: #a1a1aa; /* secondary text */
+    --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+    html {
+        color-scheme: dark;
+    }
+}

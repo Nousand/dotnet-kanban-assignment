@@ -5,16 +5,15 @@
 }
 
 <div class="mb-6 flex items-center justify-between gap-4">
-    <h1 class="text-2xl font-bold">Boards</h1>
+    <h1 class="text-xl font-semibold">Boards</h1>
 
     <form method="post" asp-page-handler="Create"
           hx-post="?handler=Create" hx-target="#board-list" hx-swap="beforeend"
           hx-on::after-request="if(event.detail.successful) this.reset()"
           class="flex gap-2">
         <input name="name" placeholder="New board name" aria-label="New board name" required
-               class="rounded border border-gray-300 px-3 py-2 text-sm" />
-        <button type="submit"
-                class="rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
+               class="rounded-md bg-card px-3 py-2 placeholder:text-muted" />
+        <button type="submit" class="rounded-md bg-white/10 px-4 py-2 hover:bg-white/20">
             Create board
         </button>
     </form>

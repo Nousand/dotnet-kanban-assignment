@@ -4,25 +4,22 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - dotnet_kanban</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="~/css/tailwind.css" asp-append-version="true" />
     <link rel="icon" href="~/favicon.ico" />
     @* No defer: keeps htmx defined before the bottom-of-body scripts (site.js) run. *@
     <script src="~/js/htmx.min.js"></script>
 </head>
-<body class="flex min-h-screen flex-col bg-gray-100 text-gray-900">
-    <header class="border-b border-gray-200 bg-white">
-        <nav class="mx-auto flex max-w-7xl items-center px-4 py-3">
-            <a asp-page="/Index" class="text-xl font-semibold tracking-tight">dotnet_kanban</a>
-        </nav>
+<body class="min-h-screen bg-surface text-sm text-zinc-200 antialiased">
+    <header class="flex h-12 items-center px-4">
+        <a asp-page="/Index" class="font-medium hover:text-white">dotnet_kanban</a>
     </header>
 
-    <main class="mx-auto w-full max-w-7xl flex-1 px-4 py-6">
+    <main class="px-4 py-4">
         @RenderBody()
     </main>
-
-    <footer class="border-t border-gray-200 bg-white py-3 text-center text-sm text-gray-500">
-        &copy; 2026 - dotnet_kanban
-    </footer>
 
     <script src="~/js/site.js" asp-append-version="true"></script>
 
