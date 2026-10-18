@@ -1,0 +1,8 @@
+@model TaskItem
+
+<partial name="_TaskDetails" model="Model" />
+
+@{
+    var cardViewData = new ViewDataDictionary(ViewData) { ["TaskCardOutOfBand"] = true };
+}
+@await Html.PartialAsync("_TaskCard", Model, cardViewData)

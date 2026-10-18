@@ -13,17 +13,21 @@ public class TaskService
     {
         await using var db = await _factory.CreateDbContextAsync();
 
-        return await db.Tasks.Include(t => t.Tags).FirstOrDefaultAsync(t => t.Id == id);
+        return await db.Tasks.Include(t => t.Tags).Include(t => t.Group)
+            .FirstOrDefaultAsync(t => t.Id == id);
     }
 
 
     public async Task AddTaskAsync(TaskItem task)
     {
         await using var db = await _factory.CreateDbContextAsync();
-        
+
+        if (!await db.Groups.AnyAsync(g => g.Id == task.GroupId))
+            throw new KeyNotFoundException("Could not find group.");
+
+        task.Position = await db.Tasks.CountAsync(t => t.GroupId == task.GroupId);
         task.Group = null;
 
-        db.AttachRange(task.Tags);
         db.Tasks.Add(task);
         await db.SaveChangesAsync();
     }
@@ -54,13 +58,19 @@ public class TaskService
     public async Task DeleteTaskAsync(Guid id)
     {
         await using var db = await _factory.CreateDbContextAsync();
-        
-        var task = await db.Tasks.FindAsync(id);
 
-        if (task != null)
+        var task = await db.Tasks.FindAsync(id);
+        if (task is null) throw new KeyNotFoundException("Could not find task.");
+
+        var laterTasks = await db.Tasks
+            .Where(t => t.GroupId == task.GroupId && t.Position > task.Position)
+            .ToListAsync();
+        foreach (var laterTask in laterTasks)
         {
-            db.Tasks.Remove(task);
-            await db.SaveChangesAsync();
+            laterTask.Position--;
         }
+
+        db.Tasks.Remove(task);
+        await db.SaveChangesAsync();
     }
 }

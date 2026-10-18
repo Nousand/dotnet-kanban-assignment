@@ -1,0 +1,4 @@
+@model Group
+
+<span id="task-count-@Model.Id" class="task-count rounded bg-white/10 px-2 text-sm text-muted"
+      hx-swap-oob="outerHTML">@Model.TaskCount</span>
