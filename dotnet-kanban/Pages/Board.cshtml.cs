@@ -1,3 +1,4 @@
+using System.Text;
 using dotnet_kanban.Models;
 using dotnet_kanban.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -27,6 +28,20 @@ public class BoardModel : PageModel
         Board = await _boards.GetBoardByIdAsync(id);
         if (Board is null) return NotFound();
         return Page();
+    }
+
+    // GET /Board/{id}?handler=Export — downloads the board as a JSON file
+    public async Task<IActionResult> OnGetExportAsync(Guid id)
+    {
+        var board = await _boards.GetBoardByIdAsync(id);
+        if (board is null) return NotFound();
+
+        var json = BoardJson.Export(board);
+
+        var fileName = string.Concat(board.Name.Where(c => !Path.GetInvalidFileNameChars().Contains(c))).Trim();
+        if (fileName.Length == 0) fileName = board.Id.ToString();
+
+        return File(Encoding.UTF8.GetBytes(json), "application/json", $"{fileName}.json");
     }
 
     // "id" is the board id from the URL

@@ -17,7 +17,8 @@
     </nav>
 
     <div class="flex justify-end">
-        <span class="cursor-not-allowed text-muted" title="Coming soon">Export</span>
+        <a asp-page="/Board" asp-route-id="@board.Id" asp-route-handler="Export"
+           class="text-muted hover:text-white">Export</a>
     </div>
 </div>
 
