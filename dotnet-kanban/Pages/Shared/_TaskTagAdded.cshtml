@@ -1,0 +1,11 @@
+@model TaskTagAddedViewModel
+
+<span data-tag-id="@Model.Tag.Id" data-tag-title="@Model.Tag.Title" data-tag-colour="@Model.Tag.Colour"
+      class="inline-flex items-center gap-1 rounded-full px-3.5 py-1 text-base font-semibold uppercase leading-5 text-white"
+      style="background-color: @Model.Tag.Colour">
+    <input type="hidden" name="tagIds" value="@Model.Tag.Id" form="task-edit-form-@Model.TaskId" />
+    <span>@Model.Tag.Title</span>
+    <button type="button" data-remove-task-tag
+            class="ml-1 rounded-full text-white/80 hover:text-white"
+            aria-label="Remove @Model.Tag.Title tag">×</button>
+</span>

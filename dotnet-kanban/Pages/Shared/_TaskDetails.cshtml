@@ -1,0 +1,78 @@
+@model TaskItem
+@{
+    var priorityColour = Model.Priority switch
+    {
+        Priority.High => "text-red-400",
+        Priority.Medium => "text-amber-300",
+        Priority.Low => "text-emerald-300",
+        _ => "text-muted"
+    };
+}
+
+<section class="flex flex-col rounded-xl bg-card p-1 shadow-xl ring-1 ring-white/10 sm:p-5">
+    <header class="mb-2 flex items-start justify-between gap-4">
+        <h2 class="min-w-0 flex-1 wrap-break-word text-2xl font-bold leading-tight text-white">
+            @Model.Title
+        </h2>
+        <div class="flex shrink-0 items-center gap-1 text-muted">
+            <button type="button"
+                    hx-get="?handler=EditTask&amp;taskId=@Model.Id"
+                    hx-target="#task-modal-content"
+                    hx-swap="innerHTML"
+                    class="rounded-lg p-2 hover:text-white"
+                    aria-label="Edit task" title="Edit task">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6">
+                    <path d="M12 20h9"></path>
+                    <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z"></path>
+                </svg>
+            </button>
+            <button type="button" data-close-task-view
+                    class="rounded-lg p-2 hover:text-white"
+                    aria-label="Close task view" title="Close">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6">
+                    <path d="m18 6-12 12"></path>
+                    <path d="m6 6 12 12"></path>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    @if (Model.Tags.Count > 0)
+    {
+        <div class="mb-2 flex flex-wrap gap-3">
+            @foreach (var tag in Model.Tags)
+            {
+                <span class="rounded-full px-3.5 py-1 text-base font-semibold uppercase leading-5 text-white"
+                      style="background-color: @tag.Colour">@tag.Title</span>
+            }
+        </div>
+    }
+
+    <hr class="mb-2 border-t border-white/10" />
+
+    <p class="flex-1 whitespace-pre-wrap wrap-break-word text-xl text-white">@(string.IsNullOrWhiteSpace(Model.Description) ? "No description" : Model.Description)</p>
+
+    <footer class="mt-8 flex items-end justify-between gap-4 text-xl text-muted">
+        @if (Model.DueDate is not null)
+        {
+            <time datetime="@Model.DueDate.Value.ToString("O")" class="flex items-center gap-2">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M12 6v6l4 2"></path>
+                </svg>
+                @Model.DueDate.Value.ToString("HH:mm MMM d")
+            </time>
+        }
+        else
+        {
+            <span></span>
+        }
+
+        <div class="shrink-0">
+            <span>Priority </span><span class="@priorityColour">@Model.Priority</span>
+        </div>
+    </footer>
+</section>
