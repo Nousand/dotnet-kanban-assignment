@@ -37,6 +37,27 @@ public class GroupService
         } else throw new KeyNotFoundException("Could not find group.");
     }
 
+    public async Task<bool> ReorderGroupsAsync(Guid boardId, IReadOnlyList<Guid> groupIds)
+    {
+        await using var db = await _factory.CreateDbContextAsync();
+        var groups = await db.Groups.Where(group => group.BoardId == boardId).ToListAsync();
+        var requestedIds = groupIds.ToHashSet();
+        if (requestedIds.Count != groupIds.Count || requestedIds.Count != groups.Count ||
+            groups.Any(group => !requestedIds.Contains(group.Id)))
+        {
+            return false;
+        }
+
+        var groupsById = groups.ToDictionary(group => group.Id);
+        for (var position = 0; position < groupIds.Count; position++)
+        {
+            groupsById[groupIds[position]].Position = position;
+        }
+
+        await db.SaveChangesAsync();
+        return true;
+    }
+
     // Delete Group
     public async Task DeleteGroupAsync(Guid id)
     {

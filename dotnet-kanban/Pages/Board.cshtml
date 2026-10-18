@@ -23,7 +23,8 @@
 </div>
 
 <div class="flex min-h-96 items-start gap-10 overflow-x-auto pb-4">
-    <div id="group-list" class="flex items-start gap-10">
+    <div id="group-list" class="flex items-start gap-10"
+         data-group-list>
         @foreach (var group in board.Groups)
         {
             <partial name="_Group" model="group" />
@@ -43,6 +44,9 @@
         </form>
     </details>
 </div>
+
+<form id="reorder-groups-form" method="post" asp-page-handler="ReorderGroups" class="hidden"></form>
+<form id="move-task-form" method="post" asp-page-handler="MoveTask" class="hidden"></form>
 
 <div id="task-modal"
      class="fixed inset-0 z-50 hidden items-center justify-center bg-black/70 p-4"
