@@ -1,0 +1,45 @@
+@model TaskItem
+
+<article id="task-card-@Model.Id"
+         hx-swap-oob="@(ViewData["TaskCardOutOfBand"] is true ? "outerHTML" : null)"
+         class="flex flex-col rounded-md bg-card p-1 text-zinc-200">
+    @if (Model.Tags.Count > 0)
+    {
+        <div class="m-2 flex flex-wrap gap-2">
+            @foreach (var tag in Model.Tags)
+            {
+                <span class="rounded-full px-1.5 py-0.5 text-[10px] font-semibold uppercase leading-4 text-white"
+                      style="background-color: @tag.Colour">@tag.Title</span>
+            }
+        </div>
+    }
+
+    <p class="flex-1 wrap-break-words px-2 text-lg leading-7 text-zinc-300">@Model.Title</p>
+
+    <footer class="flex items-center justify-between px-2 text-muted">
+        @if (Model.DueDate is not null)
+        {
+            <time datetime="@Model.DueDate.Value.ToString("O")"
+                  class="flex items-center gap-2 text-base leading-6">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="1.8" class="h-5 w-5">
+                    <circle cx="12" cy="12" r="9"></circle>
+                    <path stroke-linecap="round" d="M12 7v5l3 2"></path>
+                </svg>
+                @Model.DueDate.Value.ToString("HH:mm MMM d")
+            </time>
+        }
+        else
+        {
+            <span aria-hidden="true"></span>
+        }
+
+        <button type="button"
+                hx-get="?handler=ViewTask&amp;taskId=@Model.Id"
+                hx-target="#task-modal-content"
+                hx-swap="innerHTML"
+                class="-mr-1 p-1 leading-none hover:text-white"
+                aria-label="Open task: @Model.Title"
+                title="Open task">•••</button>
+    </footer>
+</article>

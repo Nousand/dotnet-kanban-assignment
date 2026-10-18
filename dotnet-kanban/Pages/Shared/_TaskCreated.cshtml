@@ -1,0 +1,10 @@
+@model TaskItem
+
+<partial name="_TaskCard" model="Model" />
+
+<div id="task-modal-content" hx-swap-oob="innerHTML">
+    <partial name="_TaskDetails" model="Model" />
+</div>
+
+<span id="task-count-@Model.GroupId" class="task-count rounded bg-white/10 px-2 text-sm text-muted"
+      hx-swap-oob="outerHTML">@ViewData["TaskCount"]</span>

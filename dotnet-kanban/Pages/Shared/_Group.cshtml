@@ -4,7 +4,7 @@
     <header class="flex h-10 items-center gap-2 rounded-md bg-card px-3"
             style="border-left: 4px solid @Model.Colour">
         <h2 class="flex-1 truncate font-semibold">@Model.Name</h2>
-        <span class="rounded bg-white/10 px-2 text-sm text-muted">@Model.TaskCount</span>
+        <span id="task-count-@Model.Id" class="task-count rounded bg-white/10 px-2 text-sm text-muted">@Model.TaskCount</span>
 
         <details class="relative">
             <summary class="cursor-pointer list-none rounded px-1 text-muted hover:bg-white/10">•••</summary>
@@ -35,29 +35,18 @@
         </details>
     </header>
 
-    @foreach (var task in Model.Tasks)
-    {
-        <article class="rounded-md bg-card p-2 text-sm text-zinc-200">
-            @if (task.Tags.Count > 0)
-            {
-                <div class="mb-1 flex flex-wrap gap-1">
-                    @foreach (var tag in task.Tags)
-                    {
-                        <span class="rounded-full px-1.5 text-[10px] font-bold uppercase text-white"
-                              style="background-color: @tag.Colour">@tag.Title</span>
-                    }
-                </div>
-            }
+    <div id="task-list-@Model.Id" class="flex flex-col gap-2">
+        @foreach (var task in Model.Tasks)
+        {
+            <partial name="_TaskCard" model="task" />
+        }
+    </div>
 
-            <p class="break-words">@task.Title</p>
-
-            @if (task.DueDate is not null)
-            {
-                <div class="mt-1 text-[11px] text-muted">@task.DueDate.Value.ToString("HH:mm MMM d")</div>
-            }
-        </article>
-    }
-
-    @* Placeholder: gets wired up when we build the tasks feature *@
-    <button type="button" class="rounded-md bg-card py-1 text-muted hover:bg-white/10">+</button>
+    <form method="post" asp-page-handler="CreateTask"
+          hx-post="?handler=CreateTask" hx-target="#task-list-@Model.Id" hx-swap="beforeend"
+          aria-label="Add task to @Model.Name">
+        <input type="hidden" name="groupId" value="@Model.Id" />
+        <button type="submit" class="w-full rounded-md bg-card py-1 text-lg text-muted hover:bg-white/10"
+                aria-label="Add task">+</button>
+    </form>
 </section>
