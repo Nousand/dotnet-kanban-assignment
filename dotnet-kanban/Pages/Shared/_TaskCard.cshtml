@@ -1,8 +1,9 @@
 @model TaskItem
 
 <article id="task-card-@Model.Id"
+         data-task-card data-task-id="@Model.Id" draggable="true"
          hx-swap-oob="@(ViewData["TaskCardOutOfBand"] is true ? "outerHTML" : null)"
-         class="flex flex-col rounded-md bg-card p-1 text-zinc-200">
+         class="flex cursor-grab flex-col rounded-md bg-card p-1 text-zinc-200 active:cursor-grabbing">
     @if (Model.Tags.Count > 0)
     {
         <div class="m-2 flex flex-wrap gap-2">
@@ -35,6 +36,7 @@
         }
 
         <button type="button"
+                data-task-view-button
                 hx-get="?handler=ViewTask&amp;taskId=@Model.Id"
                 hx-target="#task-modal-content"
                 hx-swap="innerHTML"

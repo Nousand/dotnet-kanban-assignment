@@ -77,6 +77,14 @@ public class BoardModel : PageModel
         return new EmptyResult();
     }
 
+    public async Task<IActionResult> OnPostReorderGroupsAsync(Guid id, List<Guid>? groupIds)
+    {
+        if (groupIds is null || !await _groups.ReorderGroupsAsync(id, groupIds))
+            return BadRequest();
+
+        return StatusCode(StatusCodes.Status204NoContent);
+    }
+
     public async Task<IActionResult> OnPostCreateTaskAsync(Guid id, Guid groupId)
     {
         var group = await _groups.GetGroupAsync(groupId);
@@ -189,6 +197,18 @@ public class BoardModel : PageModel
 
         Response.Headers["HX-Trigger"] = "closeTaskView";
         return Partial("_TaskDeleted", group);
+    }
+
+    public async Task<IActionResult> OnPostMoveTaskAsync(
+        Guid id,
+        Guid taskId,
+        Guid destinationGroupId,
+        int destinationPosition)
+    {
+        if (!await _tasks.MoveTaskAsync(id, taskId, destinationGroupId, destinationPosition))
+            return BadRequest();
+
+        return StatusCode(StatusCodes.Status204NoContent);
     }
 
     private async Task<TaskItem?> GetTaskOnBoardAsync(Guid boardId, Guid taskId)

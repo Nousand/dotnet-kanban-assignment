@@ -20,6 +20,189 @@ function closeTaskView() {
 document.body.addEventListener("openTaskView", openTaskView);
 document.body.addEventListener("closeTaskView", closeTaskView);
 
+let draggedGroup = null;
+let originalGroupOrder = [];
+let draggedTask = null;
+let originalTaskOrders = [];
+
+function dragStartElement(event) {
+    return document.elementFromPoint(event.clientX, event.clientY);
+}
+
+function restoreGroupOrder(groupList, order) {
+    for (const group of order) groupList.append(group);
+}
+
+function restoreTaskOrders(orders) {
+    for (const [list, cards] of orders) {
+        for (const card of cards) list.append(card);
+    }
+}
+
+async function postDragForm(form, fields) {
+    const data = new FormData(form);
+    for (const [name, value] of fields) data.append(name, value);
+
+    const response = await fetch(form.action, {
+        method: "POST",
+        body: data,
+        headers: { "HX-Request": "true" }
+    });
+    if (!response.ok) throw new Error(`The server rejected the new order (HTTP ${response.status}).`);
+}
+
+function showDragSaveError(error) {
+    console.error(error);
+    window.alert("The new order could not be saved. The previous order has been restored.");
+}
+
+function reorderGroupAtPointer(groupList, target, pointerX) {
+    const targetGroup = target.closest("[data-group-card]");
+    if (!targetGroup || targetGroup === draggedGroup || targetGroup.parentElement !== groupList) return;
+
+    const bounds = targetGroup.getBoundingClientRect();
+    const insertAfter = pointerX > bounds.left + bounds.width / 2;
+    groupList.insertBefore(draggedGroup, insertAfter ? targetGroup.nextElementSibling : targetGroup);
+}
+
+function reorderTaskAtPointer(taskList, target, pointerY) {
+    const targetCard = target.closest("[data-task-card]");
+    if (!targetCard || targetCard === draggedTask || targetCard.parentElement !== taskList) {
+        if (!targetCard && target === taskList) taskList.append(draggedTask);
+        return;
+    }
+
+    const bounds = targetCard.getBoundingClientRect();
+    const insertAfter = pointerY > bounds.top + bounds.height / 2;
+    taskList.insertBefore(draggedTask, insertAfter ? targetCard.nextElementSibling : targetCard);
+}
+
+document.addEventListener("dragstart", (event) => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    const startElement = dragStartElement(event);
+    if (!(startElement instanceof Element)) return;
+
+    const groupHandle = target.closest("[data-group-drag-handle]");
+    if (groupHandle) {
+        if (startElement.closest("details, button, input, select, textarea, form, summary")) {
+            event.preventDefault();
+            return;
+        }
+
+        const groupList = groupHandle.closest("[data-group-list]");
+        const group = groupHandle.closest("[data-group-card]");
+        if (!(groupList instanceof HTMLElement) || !(group instanceof HTMLElement)) return;
+
+        draggedGroup = group;
+        originalGroupOrder = Array.from(groupList.children);
+        event.dataTransfer.effectAllowed = "move";
+        event.dataTransfer.setData("text/plain", group.dataset.groupId ?? "");
+        return;
+    }
+
+    const taskCard = target.closest("[data-task-card]");
+    if (!taskCard) return;
+    if (startElement.closest("button, a, input, select, textarea, form, details, summary")) {
+        event.preventDefault();
+        return;
+    }
+
+    const taskList = taskCard.closest("[data-task-list]");
+    if (!(taskList instanceof HTMLElement)) return;
+
+    draggedTask = taskCard;
+    originalTaskOrders = Array.from(document.querySelectorAll("[data-task-list]"))
+        .map((list) => [list, Array.from(list.children)]);
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setData("text/plain", taskCard.dataset.taskId ?? "");
+});
+
+document.addEventListener("dragover", (event) => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+
+    if (draggedGroup) {
+        const groupList = target.closest("[data-group-list]");
+        if (!groupList) return;
+        event.preventDefault();
+        event.dataTransfer.dropEffect = "move";
+        reorderGroupAtPointer(groupList, target, event.clientX);
+        return;
+    }
+
+    if (draggedTask) {
+        const taskList = target.closest("[data-task-list]");
+        if (!taskList) return;
+        event.preventDefault();
+        event.dataTransfer.dropEffect = "move";
+        reorderTaskAtPointer(taskList, target, event.clientY);
+    }
+});
+
+document.addEventListener("drop", async (event) => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+
+    if (draggedGroup) {
+        const groupList = target.closest("[data-group-list]");
+        if (!groupList) return;
+        event.preventDefault();
+
+        const movedGroup = draggedGroup;
+        const previousOrder = originalGroupOrder;
+        draggedGroup = null;
+        originalGroupOrder = [];
+        const groupIds = Array.from(groupList.querySelectorAll(":scope > [data-group-card]"))
+            .map((group) => group.dataset.groupId)
+            .filter((groupId) => groupId);
+
+        try {
+            await postDragForm(
+                document.getElementById("reorder-groups-form"),
+                groupIds.map((groupId) => ["groupIds", groupId])
+            );
+        } catch (error) {
+            restoreGroupOrder(groupList, previousOrder);
+            showDragSaveError(error);
+        }
+        return;
+    }
+
+    if (draggedTask) {
+        const destinationList = target.closest("[data-task-list]");
+        if (!destinationList) return;
+        event.preventDefault();
+
+        const movedTask = draggedTask;
+        const previousOrders = originalTaskOrders;
+        draggedTask = null;
+        originalTaskOrders = [];
+        const cards = Array.from(destinationList.querySelectorAll(":scope > [data-task-card]"));
+        const destinationPosition = cards.indexOf(movedTask);
+
+        try {
+            await postDragForm(document.getElementById("move-task-form"), [
+                ["taskId", movedTask.dataset.taskId],
+                ["destinationGroupId", destinationList.dataset.groupId],
+                ["destinationPosition", String(destinationPosition)]
+            ]);
+        } catch (error) {
+            restoreTaskOrders(previousOrders);
+            showDragSaveError(error);
+        }
+    }
+});
+
+document.addEventListener("dragend", () => {
+    if (draggedGroup) restoreGroupOrder(draggedGroup.closest("[data-group-list]"), originalGroupOrder);
+    if (draggedTask) restoreTaskOrders(originalTaskOrders);
+    draggedGroup = null;
+    originalGroupOrder = [];
+    draggedTask = null;
+    originalTaskOrders = [];
+});
+
 function appendSelectedTaskTag(selectedTags, tagId, title, colour, formId) {
     if (selectedTags.querySelector(`[data-tag-id="${CSS.escape(tagId)}"]`)) return;
 

@@ -55,6 +55,60 @@ public class TaskService
         } else throw new KeyNotFoundException("Could not find task");
     }
 
+    public async Task<bool> MoveTaskAsync(Guid boardId, Guid taskId, Guid destinationGroupId, int destinationPosition)
+    {
+        await using var db = await _factory.CreateDbContextAsync();
+        await using var transaction = await db.Database.BeginTransactionAsync();
+
+        var task = await db.Tasks.Include(item => item.Group)
+            .FirstOrDefaultAsync(item => item.Id == taskId);
+        var destinationGroup = await db.Groups
+            .FirstOrDefaultAsync(group => group.Id == destinationGroupId && group.BoardId == boardId);
+        if (task?.Group is null || task.Group.BoardId != boardId || destinationGroup is null)
+            return false;
+
+        var sourceGroupId = task.GroupId;
+        var sourceTasks = await db.Tasks
+            .Where(item => item.GroupId == sourceGroupId)
+            .OrderBy(item => item.Position)
+            .ToListAsync();
+        sourceTasks.Remove(task);
+
+        List<TaskItem> destinationTasks;
+        if (sourceGroupId == destinationGroupId)
+        {
+            destinationTasks = sourceTasks;
+        }
+        else
+        {
+            destinationTasks = await db.Tasks
+                .Where(item => item.GroupId == destinationGroupId)
+                .OrderBy(item => item.Position)
+                .ToListAsync();
+        }
+
+        if (destinationPosition < 0 || destinationPosition > destinationTasks.Count)
+            return false;
+
+        task.GroupId = destinationGroupId;
+        task.Group = destinationGroup;
+        destinationTasks.Insert(destinationPosition, task);
+
+        for (var position = 0; position < sourceTasks.Count; position++)
+        {
+            sourceTasks[position].Position = position;
+        }
+
+        for (var position = 0; position < destinationTasks.Count; position++)
+        {
+            destinationTasks[position].Position = position;
+        }
+
+        await db.SaveChangesAsync();
+        await transaction.CommitAsync();
+        return true;
+    }
+
     public async Task DeleteTaskAsync(Guid id)
     {
         await using var db = await _factory.CreateDbContextAsync();
