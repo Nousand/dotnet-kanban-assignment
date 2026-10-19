@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace dotnet_kanban.Services;
 
-public class BoardService
+public class BoardService : IBoardService
 {
     private readonly IDbContextFactory<AppDBContext> _factory;
 

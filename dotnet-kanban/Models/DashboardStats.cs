@@ -38,7 +38,7 @@ public sealed record DashboardStats
             .ToDictionary(group => group.Key, group => group.Count());
 
         var perTag = board.Tags
-            .Select(tag => new CountRow(tag.Title, tag.Colour, tagCounts.GetValueOrDefault(tag.Id)))
+            .ToCountRows(tag => tagCounts.GetValueOrDefault(tag.Id))
             .OrderByDescending(row => row.Count)
             .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase)
             .ToList();
@@ -56,7 +56,7 @@ public sealed record DashboardStats
             [
                 .. board.Groups
                     .OrderBy(g => g.Position)
-                    .Select(g => new CountRow(g.Name, g.Colour, g.Tasks.Count))
+                    .ToCountRows(g => g.Tasks.Count)
             ],
             TasksPerTag = [.. perTag],
 

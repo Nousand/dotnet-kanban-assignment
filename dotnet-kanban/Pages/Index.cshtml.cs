@@ -8,9 +8,9 @@ namespace dotnet_kanban.Pages;
 
 public class IndexModel : PageModel
 {
-    private readonly BoardService _boards;
+    private readonly IBoardService _boards;
 
-    public IndexModel(BoardService boards) => _boards = boards;
+    public IndexModel(IBoardService boards) => _boards = boards;
 
     public List<Board> Boards { get; set; } = new();
 

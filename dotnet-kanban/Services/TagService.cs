@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace dotnet_kanban.Services;
 
-public class TagService
+public class TagService : ITagService
 {
     private readonly IDbContextFactory<AppDBContext> _factory;
     public TagService(IDbContextFactory<AppDBContext> factory) => _factory = factory;
