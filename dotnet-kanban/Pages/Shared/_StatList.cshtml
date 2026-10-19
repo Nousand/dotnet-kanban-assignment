@@ -1,0 +1,32 @@
+@model List<CountRow>
+
+@* One breakdown section of the dashboard: a labelled count with a bar per row. *@
+@if (Model.Count == 0)
+{
+    <p class="text-muted">Nothing to show yet.</p>
+}
+else
+{
+    var max = Math.Max(1, Model.Max(row => row.Count));
+
+    <ul class="flex flex-col gap-3">
+        @foreach (var row in Model)
+        {
+            var width = row.Count == 0 ? 0 : Math.Max(2, row.Count * 100 / max);
+            <li>
+                <div class="mb-1 flex items-center justify-between gap-2">
+                    <span class="flex min-w-0 items-center gap-2">
+                        <span class="h-2.5 w-2.5 shrink-0 rounded-full"
+                              style="background-color: @row.Colour" aria-hidden="true"></span>
+                        <span class="truncate">@row.Name</span>
+                    </span>
+                    <span class="text-muted">@row.Count</span>
+                </div>
+                <div class="h-1.5 overflow-hidden rounded-full bg-white/5">
+                    <div class="h-full rounded-full"
+                         style="width: @width%; background-color: @row.Colour"></div>
+                </div>
+            </li>
+        }
+    </ul>
+}
