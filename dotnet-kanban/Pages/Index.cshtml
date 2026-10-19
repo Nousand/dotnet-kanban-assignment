@@ -19,6 +19,20 @@
     </form>
 </div>
 
+<form method="post" asp-page-handler="Import" enctype="multipart/form-data"
+      hx-post="?handler=Import" hx-encoding="multipart/form-data"
+      hx-target="#board-list" hx-swap="beforeend"
+      hx-on::before-request="document.getElementById('import-error').textContent = ''"
+      hx-on::after-request="if (event.detail.successful && !document.getElementById('import-error').textContent) this.reset()"
+      class="mb-6 flex flex-wrap items-center gap-2">
+    <label for="import-file" class="text-muted">Import a board</label>
+    <input id="import-file" type="file" name="file" accept=".json,application/json" required
+           class="rounded-md bg-card px-3 py-2 text-sm text-zinc-200 file:mr-3 file:rounded file:border-0 file:bg-white/10 file:px-3 file:py-1 file:text-zinc-100" />
+    <button type="submit" class="rounded-md bg-white/10 px-4 py-2 hover:bg-white/20">Import board</button>
+    <p id="import-error" role="alert" class="w-full text-sm text-red-400"></p>
+</form>
+
+
 <div id="board-list" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
     @foreach (var board in Model.Boards)
     {

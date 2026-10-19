@@ -2,6 +2,7 @@ using dotnet_kanban.Models;
 using dotnet_kanban.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Text.Json;
 
 namespace dotnet_kanban.Pages;
 
@@ -42,5 +43,36 @@ public class IndexModel : PageModel
         await _boards.DeleteBoardAsync(id);
 
         return new EmptyResult();
+    }
+
+    public async Task<IActionResult> OnPostImportAsync(IFormFile? file)
+    {
+        var (board, error) = await ReadBoardAsync(file);
+        if (board is null)
+        {
+            Response.Headers["HX-Retarget"] = "#import-error";
+            Response.Headers["HX-Reswap"] = "innerHTML";
+            return Content(System.Net.WebUtility.HtmlEncode(error ?? "Import failed."), "text/html");
+        }
+
+        await _boards.AddBoardAsync(board);
+        return Partial("_BoardCard", board);
+    }
+
+    private static async Task<(Board? Board, string? Error)> ReadBoardAsync(IFormFile? file)
+    {
+        if (file is null || file.Length == 0) return (null, "Choose a .json file to import.");
+        if (file.Length > BoardImporter.MaxFileBytes) return (null, "That file is too large (limit 1 MB).");
+
+        try
+        {
+            using var reader = new StreamReader(file.OpenReadStream());
+            var json = await reader.ReadToEndAsync();
+            return BoardImporter.Build(BoardJson.Import(json));
+        }
+        catch (JsonException)
+        {
+            return (null, "That file isn't valid board JSON.");
+        }
     }
 }
