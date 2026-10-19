@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace dotnet_kanban.Services;
 
-public class GroupService
+public class GroupService : IGroupService
 {
     private readonly IDbContextFactory<AppDBContext> _factory;
     public GroupService(IDbContextFactory<AppDBContext> factory) => _factory = factory;

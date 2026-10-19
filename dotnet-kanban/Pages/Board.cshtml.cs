@@ -8,12 +8,12 @@ namespace dotnet_kanban.Pages;
 
 public class BoardModel : PageModel
 {
-    private readonly BoardService _boards;
-    private readonly GroupService _groups;
-    private readonly TaskService _tasks;
-    private readonly TagService _tags;
+    private readonly IBoardService _boards;
+    private readonly IGroupService _groups;
+    private readonly ITaskService _tasks;
+    private readonly ITagService _tags;
 
-    public BoardModel(BoardService boards, GroupService groups, TaskService tasks, TagService tags)
+    public BoardModel(IBoardService boards, IGroupService groups, ITaskService tasks, ITagService tags)
     {
         _boards = boards;
         _groups = groups;

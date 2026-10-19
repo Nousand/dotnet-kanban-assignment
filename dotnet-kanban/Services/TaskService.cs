@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace dotnet_kanban.Services;
 
-public class TaskService
+public class TaskService : ITaskService
 {
     private readonly IDbContextFactory<AppDBContext> _factory;
     public TaskService(IDbContextFactory<AppDBContext> factory) => _factory = factory;

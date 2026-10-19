@@ -7,9 +7,9 @@ namespace dotnet_kanban.Pages;
 
 public class DashboardModel : PageModel
 {
-    private readonly BoardService _boards;
+    private readonly IBoardService _boards;
 
-    public DashboardModel(BoardService boards) => _boards = boards;
+    public DashboardModel(IBoardService boards) => _boards = boards;
 
     public Board? Board { get; set; }
     public DashboardStats Stats { get; private set; } = new();

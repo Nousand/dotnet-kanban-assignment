@@ -12,10 +12,10 @@ builder.Services.AddRazorPages();
 builder.Services.AddDbContextFactory<AppDBContext> (
     options => options.UseSqlite("Data Source=kanban.db"));
 
-builder.Services.AddScoped<BoardService>();
-builder.Services.AddScoped<GroupService>();
-builder.Services.AddScoped<TaskService>();
-builder.Services.AddScoped<TagService>();
+builder.Services.AddScoped<IBoardService, BoardService>();
+builder.Services.AddScoped<IGroupService, GroupService>();
+builder.Services.AddScoped<ITaskService, TaskService>();
+builder.Services.AddScoped<ITagService, TagService>();
 
 var app = builder.Build();
 
