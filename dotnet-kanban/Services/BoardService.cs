@@ -18,6 +18,20 @@ public class BoardService
         return await db.Boards.ToListAsync();
     }
 
+    // Task total for every board, biggest first (dashboard "tasks per board" view)
+    public async Task<List<BoardTaskCount>> GetTaskCountsAsync()
+    {
+        await using var db = await _factory.CreateDbContextAsync();
+
+        var counts = await db.Boards
+            .Select(b => new { b.Id, b.Name, TaskCount = b.Groups.Sum(g => g.Tasks.Count) })
+            .OrderByDescending(b => b.TaskCount)
+            .ThenBy(b => b.Name)
+            .ToListAsync();
+
+        return [.. counts.Select(b => new BoardTaskCount(b.Id, b.Name, b.TaskCount))];
+    }
+
     // Gets full board with groups tasks and tags
     public async Task<Board?> GetBoardByIdAsync(Guid id)
     {
@@ -65,3 +79,6 @@ public class BoardService
         } else throw new KeyNotFoundException("Could not find board.");
     }
 }
+
+// Task total per board, used by the dashboard's "tasks per board" breakdown.
+public sealed record BoardTaskCount(Guid Id, string Name, int TaskCount);

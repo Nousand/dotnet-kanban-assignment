@@ -13,7 +13,8 @@
 
     <nav class="flex justify-center gap-1">
         <span class="rounded bg-white/10 px-3 py-1">Board</span>
-        <span class="cursor-not-allowed rounded px-3 py-1 text-muted" title="Coming soon">Dashboard</span>
+        <a asp-page="/Dashboard" asp-route-id="@board.Id"
+           class="rounded px-3 py-1 text-muted hover:bg-white/10 hover:text-white">Dashboard</a>
     </nav>
 
     <div class="flex justify-end">
