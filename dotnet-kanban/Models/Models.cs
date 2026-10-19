@@ -61,6 +61,9 @@ public static class BoardJson
     public static string Export(Board board) =>
         JsonSerializer.Serialize(ExportBoard.From(board), Options);
 
+    public static ExportBoard? Import(string json) =>
+    JsonSerializer.Deserialize<ExportBoard>(json, Options);
+
 }
 
 public class ExportBoard

@@ -61,3 +61,5 @@ kanban.db*
 
 # npm
 node_modules/
+
+.vs/
